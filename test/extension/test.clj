@@ -9,8 +9,6 @@
         [{:title "title" :body "body"}]))))
 
 (comment
-;;
   (ns extension.test)
   (run-tests)
-;;
-  )
+  (comment))

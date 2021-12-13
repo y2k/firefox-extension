@@ -8,7 +8,7 @@
    (.then
     (fn [x]
       (let [p (some-> (.-key x) (.-value))
-            db {:raw-config p
+            db {:raw-config (if (some? p) p (str d/def-config))
                 :config (if (nil? p) d/def-config (edn/read-string p))}]
         (reset! d/db db)
         (d/dispatch [:extension.domain/db-changed nil]))))))
