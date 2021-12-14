@@ -6,15 +6,21 @@
 (defn hide-node [node]
   (.click (.querySelector node "img.extButton.threadHideButton")))
 
+(defn query-model [model node]
+  (into {} (map (fn [[k v]] [k (.-innerText (.querySelector node v))]) model)))
+
 (defn reload []
   (->>
    (.querySelectorAll js/document "div.thread:not(.post-hidden)")
    (map
     (fn [node]
-      {:title (.-innerText (.querySelector node "span.subject"))
-       :body (.-innerText (.querySelector node "blockquote.postMessage"))
-       :name (.-innerText (.querySelector node "span.name"))
-       :node node}))
+      (->
+       (query-model
+        {:title "span.subject"
+         :body "blockquote.postMessage"
+         :name "span.name"}
+        node)
+       (assoc :node node))))
    (d/skip-nodes (:exclude (:config @d/db)))
    (run! (fn [x] (hide-node (:node x))))))
 

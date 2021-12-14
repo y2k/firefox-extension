@@ -14,17 +14,23 @@
   :source-paths ["src"]
 
   :cljsbuild {:builds
-              [{:id "dev"
+              [{:id "extension"
+                :source-paths ["src"]
+                :compiler {:main extension.extension
+                           :output-to "resources/public/js/compiled/extension.js"
+                           :optimizations :whitespace
+                           :pretty-print false}}
+               {:id "dev"
                 :source-paths ["src"]
                 :figwheel {:open-urls ["http://localhost:3449/index.html"]}
-                :compiler {:main extension.core
+                :compiler {:main extension.extension
                            :asset-path "js/compiled/out"
                            :output-to "resources/public/js/compiled/extension.js"
                            :output-dir "resources/public/js/compiled/out"
                            :source-map-timestamp true}}
                {:id "min"
                 :source-paths ["src"]
-                :compiler {:main extension.core
+                :compiler {:main extension.extension
                            :output-to "resources/public/js/compiled/extension.js"
                            :optimizations :advanced
                            :pretty-print false}}]}
