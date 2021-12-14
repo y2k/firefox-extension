@@ -32,9 +32,6 @@
 
 ;; =========================================================
 
-;; :extension.domain/db-reseted (DB)
-;; :extension.domain/db-changed (nil)
-
 (def listeners (atom {}))
 
 (defn reset-all []

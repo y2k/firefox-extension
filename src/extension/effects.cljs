@@ -15,7 +15,7 @@
 
 (do
   (d/reg-event-fx
-   :extension.domain/db-reseted
+   :extension.domain/db-reset-requested
    (fn [db]
      (reset! d/db db)
      (js/browser.storage.local.set (clj->js {:key {:value (:raw-config db)}}))
