@@ -1,4 +1,4 @@
-(defproject extension "0.1.0-SNAPSHOT"
+(defproject extension "0.1.0"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
@@ -19,13 +19,14 @@
                 :compiler {:main extension.extension
                            :output-to "resources/public/js/compiled/extension.js"
                            :optimizations :whitespace
+                           :output-dir "resources/public/js/compiled/out2"
                            :pretty-print false}}
-               {:id "dev"
+               {:id "options"
                 :source-paths ["src"]
-                :figwheel {:open-urls ["http://localhost:3449/index.html"]}
-                :compiler {:main extension.extension
+                :figwheel {}
+                :compiler {:main extension.options
                            :asset-path "js/compiled/out"
-                           :output-to "resources/public/js/compiled/extension.js"
+                           :output-to "resources/public/js/compiled/options.js"
                            :output-dir "resources/public/js/compiled/out"
                            :source-map-timestamp true}}
                {:id "min"
@@ -33,12 +34,13 @@
                 :compiler {:main extension.extension
                            :output-to "resources/public/js/compiled/extension.js"
                            :optimizations :advanced
+                           :output-dir "resources/public/js/compiled/out3"
                            :pretty-print false}}]}
 
   :figwheel {:css-dirs ["resources/public/css"]}
 
-  :profiles {:dev {:dependencies [[binaryage/devtools "1.0.0"]
-                                  [figwheel-sidecar "0.5.20"]]
-                   :source-paths ["src" "dev"]
-                   :clean-targets ^{:protect false} ["resources/public/js/compiled"
-                                                     :target-path]}})
+  :profiles {:options {:dependencies [[binaryage/devtools "1.0.0"]
+                                      [figwheel-sidecar "0.5.20"]]
+                       :source-paths ["src" "dev"]
+                       :clean-targets ^{:protect false} ["resources/public/js/compiled"
+                                                         :target-path]}})
