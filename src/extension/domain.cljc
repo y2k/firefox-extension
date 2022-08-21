@@ -47,5 +47,6 @@
 ;; (symbol * obj) list -> unit
 (defn dispatch [events]
   (doseq [[e ep] (partition 2 events)]
+    (println "[EVENT][" e "]" ep)
     (doseq [f (e @listeners)]
       (f ep))))

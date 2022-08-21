@@ -14,3 +14,5 @@ pom.xml
 .nrepl-port
 .rebel_readline_history
 /resources
+/playground
+/__local/
