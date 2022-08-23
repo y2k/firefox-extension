@@ -7,7 +7,10 @@ run_extension:
 run_options:
 	rm -rf resources/public/js && lein figwheel options
 
+figwheel:
+	rm -rf resources/public/js && lein figwheel
+
 test:
 	lein test
 
-.PHONY: build run_extension run_options test
+.PHONY: figwheel build run_extension run_options test
