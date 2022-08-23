@@ -9,6 +9,19 @@
 (defn query-model [model node]
   (into {} (map (fn [[k v]] [k (.-innerText (.querySelector node v))]) model)))
 
+(comment
+
+  (+ 2 2)
+  js/document.title
+  js/document.title
+  js/document.title
+  js/document.title
+  js/document.title
+  (extension.extension/reload)
+  (extension.extension/reload)
+
+  comment)
+
 (defn reload []
   (->>
    (.querySelectorAll js/document "div.thread:not(.post-hidden)")

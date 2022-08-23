@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        textarea.browser-style {
+            flex: 1;
+            min-height: 250px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="panel-section panel-section-formElements">
+        <div class="panel-formElements-item">
+            <textarea id="options-text" class="browser-style"></textarea>
+        </div>
+    </div>
+
+    <footer class="panel-section panel-section-footer">
+        <button class="panel-section-footer-button" x-event="extension.options/cancel">Cancel</button>
+        <div class="panel-section-footer-separator"></div>
+        <button class="panel-section-footer-button default" x-event="extension.options/confirm">Confirm</button>
+    </footer>
+
+    <script src="js/compiled/options.js"></script>
+</body>
+
+</html>

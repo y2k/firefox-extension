@@ -2,7 +2,6 @@
     "files.exclude": {
         ".rebel_*": true,
         "target/": true,
-        "dev/": true,
         "figwheel_server.log": true,
         ".lein-*": true,
         ".nrepl-*": true,

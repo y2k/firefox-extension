@@ -20,8 +20,9 @@
 ;; =========================================================
 
 (defn- contains-strings [s & subs]
-  (let [low-s (.toLowerCase s)]
-    (boolean (some (fn [x] (str/includes? low-s x)) subs))))
+  (let [low-s (.toLowerCase s)
+        low-subs (mapv (fn [x] (.toLowerCase x)) subs)]
+    (boolean (some (fn [x] (str/includes? low-s x)) low-subs))))
 
 (defn skip-nodes [exclude nodes]
   (filter

@@ -13,6 +13,6 @@ pom.xml
 .repl
 .nrepl-port
 .rebel_readline_history
-/resources
+/resources/public/js
 /playground
 /__local/
