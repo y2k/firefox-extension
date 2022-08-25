@@ -18,10 +18,11 @@
                     :config {:exclude ["READ"]}})
       (d/dispatch [:extension.domain/db-changed nil]))))
 
-(do
-  (d/reg-event-fx
-   :extension.domain/db-reset-requested
-   (fn [db]
-     (reset! d/db db)
-     (js/browser.storage.local.set (clj->js {:key {:value (:raw-config db)}}))
-     (d/dispatch [:extension.domain/db-changed nil]))))
+(defonce setup
+  (do
+    (d/reg-event-fx
+     :extension.domain/db-reset-requested
+     (fn [db]
+       (reset! d/db db)
+       (js/browser.storage.local.set (clj->js {:key {:value (:raw-config db)}}))
+       (d/dispatch [:extension.domain/db-changed nil])))))

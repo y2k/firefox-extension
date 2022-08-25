@@ -11,7 +11,8 @@
     await add_script_url("goog/base.js");
     await add_script_url("cljs_deps.js");
 
+    goog.require("extension.extension");
     goog.require("figwheel.connect");
-    await new Promise(r => setTimeout(r, 500))
+    await new Promise(r => setTimeout(r, 1000))
     figwheel.connect.start();
 })()

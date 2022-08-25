@@ -30,8 +30,8 @@
   (d/reg-event-fx ::update-ui (fn [msg] (set! (.-value (read-option)) msg)))
   (d/reg-event-fx ::show-alert (fn [msg] (js/alert msg)))
   (d/dispatch [::init nil])
-  (eff/init))
+  (eff/init)
 
-(->>
- (.querySelectorAll js/document "button[x-event]")
- (run! (fn [node] (set! (.-onclick node) #(d/dispatch [(keyword (.getAttribute node "x-event")) nil])))))
+  (->>
+   (.querySelectorAll js/document "button[x-event]")
+   (run! (fn [node] (set! (.-onclick node) #(d/dispatch [(keyword (.getAttribute node "x-event")) nil]))))))
