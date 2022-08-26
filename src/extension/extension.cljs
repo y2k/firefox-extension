@@ -1,4 +1,4 @@
-(ns extension.extension
+(ns ^:figwheel-hooks extension.extension
   (:require [extension.domain :as d]
             [clojure.string :as str]
             [extension.effects :as eff]))
@@ -10,7 +10,6 @@
   (into {} (map (fn [[k v]] [k (.-innerText (.querySelector node v))]) model)))
 
 (defn reload []
-  (println "[LOG] reload")
   (->>
    (.querySelectorAll js/document "div.thread:not(.post-hidden)")
    (map
@@ -37,4 +36,5 @@
           (if (= "childList" (.-type m))
             (reload)))))
      (.querySelector js/document "div.board")
-     #js{"childList" true})))
+     #js{"childList" true})
+    nil))

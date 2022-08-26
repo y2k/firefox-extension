@@ -8,7 +8,7 @@ run_options:
 	rm -rf resources/public/js && lein figwheel options
 
 figwheel:
-	rm -rf resources/public/js && lein figwheel
+	rm -rf resources/public/js && lein figwheel extension
 
 test:
 	lein test

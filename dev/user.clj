@@ -39,3 +39,5 @@
   "Launch a ClojureScript REPL that is connected to your build and host environment."
   []
   (f/cljs-repl))
+
+(stop-autobuild)

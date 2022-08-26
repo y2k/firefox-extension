@@ -10,16 +10,12 @@
     "content_scripts": [
         {
             "js": [
-                "js/compiled/bootstrap.js",
-                "js/compiled/out_ext/goog/base.js",
-                "js/compiled/out_ext/goog/deps.js",
-                "js/compiled/out_ext/cljs_deps.js",
                 "js/compiled/extension.js"
             ],
             "matches": [
-                "https://boards.4chan.org/*"
+                "https://boards.4chan.org/*/"
             ],
-            "run_at": "document_idle"
+            "run_at": "document_end"
         }
     ],
     "content_security_policy": "script-src 'self' 'unsafe-eval' 'sha256-CfMPE8ys/ylJ5D9qKG0a9/UejrcczMr4/EmFCbVbgcc=' 'sha256-XsBu2nEJnS7x/Izq1v7dzy3Ze5myJMHvg4zukh/R1Yk=' 'sha256-x0rlpm1Fdp2fPW4gEDaYDv8TbFK3QRFRg7cpqT3P3vU=' 'sha256-oGUenkizutwpTkFLaegkLDXz1ohUi5P1MI8mU7Ad2F8=' 'sha256-eXOnyjEz6FiynhuIL8qbPMHjqtMl2jRdpceNhmmekhE=' 'sha256-yiCuQWMp8HGivtLG7GSzDj4NfsHHRAxFwxTCTeI9ls8=' 'sha256-FJ3Uzv6+SuiyDlP9O2Q+ub/Pag+Z4tyyQXRsPoq0jNo=' 'sha256-Gsm1fkjgjnuXquPqgorupiMbyZBLU+hkqY2mGA39Ass='; object-src 'self'",

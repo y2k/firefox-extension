@@ -18,7 +18,7 @@
                 :source-paths ["src"]
                 :figwheel {}
                 :compiler {:main extension.extension
-                           :asset-path "js/compiled/out_ext"
+                           :asset-path "http://localhost:3449/js/compiled/out_ext"
                            :output-to "resources/public/js/compiled/extension.js"
                            :output-dir "resources/public/js/compiled/out_ext"
                            :source-map-timestamp true}}
