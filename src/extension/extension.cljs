@@ -1,5 +1,6 @@
-(ns ^:figwheel-hooks extension.extension
+(ns extension.extension
   (:require [extension.domain :as d]
+            [extension.framework :as f]
             [clojure.string :as str]
             [extension.effects :as eff]))
 
@@ -7,7 +8,10 @@
   (.click (.querySelector node "img.extButton.threadHideButton")))
 
 (defn query-model [model node]
-  (into {} (map (fn [[k v]] [k (.-innerText (.querySelector node v))]) model)))
+  (->>
+   model
+   (map (fn [[k v]] [k (.-innerText (.querySelector node v))]))
+   (into {})))
 
 (defn reload []
   (->>
@@ -26,7 +30,7 @@
 
 (defonce setup
   (do
-    (d/reg-event-fx :extension.domain/db-changed (fn [_] (reload)))
+    (f/reg-event-fx :extension.domain/db-changed (fn [_] (reload)))
     (eff/init)
 
     (.observe
