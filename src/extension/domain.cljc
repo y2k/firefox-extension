@@ -8,6 +8,7 @@
 
 (def def-config {:exclude []})
 
+;; (def ^:private db (atom {}))
 (def db (atom {}))
 
 (defn try-parse-db [input-str]

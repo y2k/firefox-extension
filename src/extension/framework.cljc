@@ -1,4 +1,5 @@
-(ns extension.framework)
+(ns extension.framework
+  (:require [extension.domain :as d]))
 
 (def listeners (atom {}))
 
@@ -10,6 +11,13 @@
   (swap! listeners
          (fn [state]
            (update state event (fn [xs] (vec (conj xs f))))))
+  nil)
+
+  ;; event -> (params -> unit) -> unit
+(defn reg-event-db [event f]
+  (swap! listeners
+         (fn [state]
+           (update state event (fn [xs] (vec (conj xs (fn [e] (f @d/db e))))))))
   nil)
 
 ;; (symbol * obj) list -> unit

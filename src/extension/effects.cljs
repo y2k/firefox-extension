@@ -26,4 +26,5 @@
      (fn [db]
        (reset! d/db db)
        (js/browser.storage.local.set (clj->js {:key {:value (:raw-config db)}}))
-       (f/dispatch [:extension.domain/db-changed nil])))))
+       (f/dispatch [:extension.domain/db-changed nil])))
+    nil))
