@@ -12,12 +12,12 @@
 
 ;; Common CLJ
 
-(f/reg-event-fx :extension.domain/db-changed #(f/dispatch [::init nil]))
+(f/reg-event :extension.domain/db-changed #(f/dispatch [::init nil]))
 
-(f/reg-event-fx
+(f/reg-event
  ::init (fn [] (f/dispatch [::update-ui (:raw-config @d/db)])))
 
-(f/reg-event-fx
+(f/reg-event
  ::confirm (fn []
              (let [db (d/try-parse-db (.-value (read-option)))]
                (if (nil? db)
@@ -28,8 +28,8 @@
 ;; JS CLJ
 
 (do
-  (f/reg-event-fx ::update-ui (fn [msg] (set! (.-value (read-option)) msg)))
-  (f/reg-event-fx ::show-alert (fn [msg] (js/alert msg)))
+  (f/reg-event ::update-ui (fn [msg] (set! (.-value (read-option)) msg)))
+  (f/reg-event ::show-alert (fn [msg] (js/alert msg)))
   (f/dispatch [::init nil])
   (eff/init)
 

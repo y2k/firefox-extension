@@ -21,7 +21,7 @@
 
 (defonce setup
   (do
-    (f/reg-event-fx
+    (f/reg-event
      :extension.domain/db-reset-requested
      (fn [db]
        (reset! d/db db)

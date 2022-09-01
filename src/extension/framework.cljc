@@ -7,7 +7,7 @@
   (reset! listeners {}))
 
 ;; event -> (params -> unit) -> unit
-(defn reg-event-fx [event f]
+(defn reg-event [event f]
   (swap! listeners
          (fn [state]
            (update state event (fn [xs] (vec (conj xs f))))))
