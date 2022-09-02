@@ -12,7 +12,6 @@
          (fn [state]
            (update state event (fn [xs] (vec (conj xs f))))))
   nil)
-
   ;; event -> (params -> unit) -> unit
 (defn reg-event-db [event f]
   (swap! listeners
@@ -26,3 +25,7 @@
     (println "[EVENT][" e "]" ep)
     (doseq [f (e @listeners)]
       (f ep))))
+
+(defn dispatch2 [e ep]
+  (doseq [f (e @listeners)]
+    (f ep)))

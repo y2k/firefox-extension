@@ -20,6 +20,19 @@
 
 ;; =========================================================
 
+(comment
+
+  (type 0)
+  (use 'figwheel-sidecar.repl-api)
+  (cljs-repl)
+
+  (use 'figwheel-sidecar.repl-api)
+  ;; (start-figwheel!)
+  (cljs-repl)
+  (js/alert "test")
+
+  comment)
+
 (defn- contains-strings [s & subs]
   (let [low-s (.toLowerCase s)
         low-subs (mapv (fn [x] (.toLowerCase x)) subs)]

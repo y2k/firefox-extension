@@ -6,7 +6,11 @@
 
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/clojurescript "1.11.60"]
-                 [org.clojure/core.async  "0.4.500"]]
+                 [org.clojure/core.async  "0.4.500"]
+                 [cider/cider-nrepl "0.25.11"]
+
+                 [cider/piggieback "0.5.3"]
+                 [figwheel-sidecar "0.5.20"]]
 
   :plugins [[lein-figwheel "0.5.20"]
             [lein-cljsbuild "1.1.8" :exclusions [[org.clojure/clojure]]]]
@@ -38,13 +42,18 @@
                            :output-dir "resources/public/js/compiled/out_min"
                            :pretty-print false}}]}
 
-  :figwheel {:css-dirs ["resources/public/css"]}
+  :figwheel {:css-dirs ["resources/public/css"]
+             :nrepl-port 7888
+             :nrepl-middleware ["cider.nrepl/cider-middleware"
+                                "refactor-nrepl.middleware/wrap-refactor"
+                                "cemerick.piggieback/wrap-cljs-repl"]}
 
   :profiles {:extension
              {:dependencies [[binaryage/devtools "1.0.0"]
                              [cider/piggieback "0.5.3"]
                              [figwheel-sidecar "0.5.20"]]
               :source-paths ["src" "dev"]
+              :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
               :clean-targets ^{:protect false} ["resources/public/js/compiled"
                                                 :target-path]}
              :options
