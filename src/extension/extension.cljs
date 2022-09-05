@@ -56,14 +56,28 @@
   (defn handle-page-changed []
     ???)
 
+  (reg-event
+   ::document-loaded
+   (fn []
+     [:document/append
+      {:target "#navtopright"
+       :node {:tagName "A"
+              :innerText "[NSFW]"
+              :onclick ::nsfw-clicked}}]))
+
+  (reg-event-db
+   ::nsfw-clicked
+   (fn [db]
+     [:db (assoc db :nsfw-blocked (:nsfw-blocked db))]))
+
   (defn document-node-added-virt [v-node]
     (if (= "VIDEO" (:tagName v-node))
       (let [parent-node (:parentNode v-node)]
-        [[:document/append
-          {:target parent-node
-           :node {:tagName "DIV"
-                  :class "ext-hover"
-                  :onclick ::close-clicked}}]])))
+        [:document/append
+         {:target parent-node
+          :node {:tagName "DIV"
+                 :class "ext-hover"
+                 :onclick ::close-clicked}}])))
 
   (defn close-clicked [{target :target}]
     (let [parent-node (:parentNode target)]
@@ -144,5 +158,6 @@
 ;;      #js{"subtree" true "childList" true})
 
 ;;     (eff/init)
+;;     (f/dispatch ::document-loaded nil)
 
 ;;     nil))
