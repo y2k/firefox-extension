@@ -16,3 +16,4 @@ pom.xml
 /resources/public/js
 /playground
 /__local/
+.cljs_node_repl/
