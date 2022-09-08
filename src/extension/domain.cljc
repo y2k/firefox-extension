@@ -20,22 +20,9 @@
 
 ;; =========================================================
 
-(comment
-
-  (type 0)
-  (use 'figwheel-sidecar.repl-api)
-  (cljs-repl)
-
-  (use 'figwheel-sidecar.repl-api)
-  ;; (start-figwheel!)
-  (cljs-repl)
-  (js/alert "test")
-
-  comment)
-
 (defn- contains-strings [s & subs]
-  (let [low-s (.toLowerCase s)
-        low-subs (mapv (fn [x] (.toLowerCase x)) subs)]
+  (let [low-s (str/lower-case s)
+        low-subs (mapv (fn [x] (str/lower-case x)) subs)]
     (boolean (some (fn [x] (str/includes? low-s x)) low-subs))))
 
 (defn skip-nodes [exclude nodes]

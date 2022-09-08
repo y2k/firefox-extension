@@ -25,6 +25,18 @@
    (d/skip-nodes (:exclude (:config db)))
    (run! (fn [x] (some-> (.querySelector (:node x) "img.extButton.threadHideButton") (.click))))))
 
+;; ==============================
+
+(defn- document-loaded []
+  [:document/append
+   {:target "#navtopright"
+    :node {:tagName "A"
+           :innerText "[FADE]"
+           :onclick ::fade-clicked}}])
+
+(defn- fade-clicked [db]
+  [:db (assoc db :fade-content (not (:fade-content db)))])
+
 (comment
 
   (type 0)
@@ -56,15 +68,6 @@
   (defn handle-page-changed []
     ???)
 
-  (reg-event
-   ::document-loaded
-   (fn []
-     [:document/append
-      {:target "#navtopright"
-       :node {:tagName "A"
-              :innerText "[NSFW]"
-              :onclick ::nsfw-clicked}}]))
-
   (reg-event-db
    ::nsfw-clicked
    (fn [db]
@@ -81,37 +84,13 @@
 
   (defn close-clicked [{target :target}]
     (let [parent-node (:parentNode target)]
-      [[:document/remove target]
-       [:document/click {:root parent-node :querySelector ".collapseWebm > a"}]]))
+      [:fx
+       [[:document/remove target]
+        [:document/click {:root parent-node :querySelector ".collapseWebm > a"}]]]))
 
   (close-clicked {:target {:id "node1" :parentNode {:id "node2"}}})
 
   (reg-event ::close-clicked close-clicked)
-
-  (defn- make-vnode [node]
-    (defn inner-make-node [node]
-      {:class (.-className node)
-       :tagName (.-tagName node)
-       :real-node node})
-    (assoc (inner-make-node node) :parent (inner-make-vnode (.-parentNode node))))
-
-  (reg-fx
-   :document/append
-   (fn [{node :node n :target}]
-     (let [h (.createElement js/document (:tagName node))]
-       (set! (.-className h) (:class node))
-       (set! (.-onclick h) (fn [e] (f/dispatch2 (:onclick node) {:target (make-vnode (.-target e))})))
-       (.append (:real-node n) h))))
-
-  (reg-fx
-   :document/click
-   (fn [p]
-     (->
-      (:real-node (:root p))
-      (.querySelector (:querySelector p))
-      (.click))))
-
-  (reg-fx :document/remove (fn [p] (.click (:real-node p))))
 
   (let [node {:tagName "VIDEO" :real-node (gensym) :parentNode {:tagName "PARENT" :real-node (gensym)}}]
     (->
@@ -123,41 +102,63 @@
 
   comment)
 
-(defn document-node-added [node]
-  (if (= "VIDEO" (.-tagName node))
-    (let [n (.-parentNode node)]
-      (let [h (.createElement js/document "div")]
-        (set! (.-className h) "ext-hover")
-        (set! (.-onclick h)
-              (fn [e]
-                (-> (.querySelector n ".collapseWebm > a") (.click))
-                (.remove (.-target e))))
-        (.append n h)))))
+(defn handle-media-changes [v-node]
+  (if (= "VIDEO" (:tagName v-node))
+    (let [parent-node (:parentNode v-node)]
+      [:document/append
+       {:target parent-node
+        :node {:tagName "DIV"
+               :class "ext-hover"
+               :onclick ::close-clicked}}])))
 
-;; (defonce setup
-;;   (do
-;;     (f/reg-event-db :document-node-added handle-page-changed)
-;;     (f/reg-event-db :extension.domain/db-changed handle-page-changed)
-;;     (f/reg-event :document-node-added document-node-added)
+(defn close-clicked [{target :target}]
+  (let [parent-node (:parentNode target)]
+    [:batch
+     [[:document/remove target]
+      [:document/click {:root parent-node :querySelector ".collapseWebm > a"}]]]))
 
-;;     (let [style (.createElement js/document "style")]
-;;       (set!
-;;        (.-innerHTML style)
-;;        "video.expandedWebm { grid-row: 2; grid-column: 1; }
-;;         div.ext-hover { margin: 5px 0px 45px 0px; grid-row: 2; grid-column: 1; }
-;;         div.post div.file { display: grid }")
-;;       (.append (.-head js/document) style))
+(defonce setup
+  (do
 
-;;     (.observe
-;;      (js/MutationObserver.
-;;       (fn [mutations _]
-;;         (doseq [m mutations]
-;;           (doseq [n (.-addedNodes m)]
-;;             (f/dispatch [:document-node-added n])))))
-;;      (.querySelector js/document "div.board")
-;;      #js{"subtree" true "childList" true})
+    (f/reg-event ::document-loaded #'document-loaded)
+    (f/reg-event-db ::fade-clicked #'fade-clicked)
 
-;;     (eff/init)
-;;     (f/dispatch ::document-loaded nil)
+    (f/reg-event :document-node-added #'handle-media-changes)
+    (f/reg-event ::close-clicked #'close-clicked)
 
-;;     nil))
+    ;; (f/reg-event-db :document-node-added handle-page-changed)
+    ;; (f/reg-event-db :extension.domain/db-changed handle-page-changed)
+
+    (let [observer
+          (js/MutationObserver.
+           (fn [mutations _]
+             (doseq [m mutations]
+               (doseq [n (.-addedNodes m)]
+                 (f/dispatch :document-node-added (eff/make-vnode n))))))]
+      (.observe
+       observer
+       (.querySelector js/document "div.board")
+       #js{"subtree" true "childList" true})
+      (fn [] (.disconnect observer)))
+
+    (let [style (.createElement js/document "style")]
+      (set!
+       (.-innerHTML style)
+       "video.expandedWebm { grid-row: 2; grid-column: 1; }
+        div.ext-hover { margin: 5px 0px 45px 0px; grid-row: 2; grid-column: 1; }
+        div.post div.file { display: grid }")
+      (.append (.-head js/document) style))
+
+    ;; (.observe
+    ;;  (js/MutationObserver.
+    ;;   (fn [mutations _]
+    ;;     (doseq [m mutations]
+    ;;       (doseq [n (.-addedNodes m)]
+    ;;         (f/dispatch [:document-node-added n])))))
+    ;;  (.querySelector js/document "div.board")
+    ;;  #js{"subtree" true "childList" true})
+
+    ;; (eff/init)
+    (f/dispatch ::document-loaded nil)
+
+    nil))
