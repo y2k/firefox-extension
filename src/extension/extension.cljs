@@ -10,7 +10,7 @@
    (map (fn [[k v]] [k (.-innerText (.querySelector node v))]))
    (into {})))
 
-(defn handle-page-changed [db _]
+(defn clear-content [db _]
   (->>
    (.querySelectorAll js/document "div.thread:not(.post-hidden)")
    (map
@@ -38,10 +38,6 @@
   [:db (assoc db :fade-content (not (:fade-content db)))])
 
 (comment
-
-  (type 0)
-  (js/alert "test")
-
   (defn handle-page-changed [n]
     (if (= (.-className n) "thread")
       (let
@@ -51,56 +47,9 @@
            :name  (.-innerText (.querySelector n "span.name"))}]
         (println x))))
 
-  (def
-    disconnect
-    (let [observer
-          (js/MutationObserver.
-           (fn [mutations _]
-             (doseq [m mutations]
-               (doseq [n (.-addedNodes m)]
-                 (handle-page-changed n)))))]
-      (.observe
-       observer
-       (.querySelector js/document "div.board")
-       #js{"subtree" true "childList" true})
-      (fn [] (.disconnect observer))))
-
-  (defn handle-page-changed []
-    ???)
-
-  (reg-event-db
-   ::nsfw-clicked
-   (fn [db]
-     [:db (assoc db :nsfw-blocked (:nsfw-blocked db))]))
-
-  (defn document-node-added-virt [v-node]
-    (if (= "VIDEO" (:tagName v-node))
-      (let [parent-node (:parentNode v-node)]
-        [:document/append
-         {:target parent-node
-          :node {:tagName "DIV"
-                 :class "ext-hover"
-                 :onclick ::close-clicked}}])))
-
-  (defn close-clicked [{target :target}]
-    (let [parent-node (:parentNode target)]
-      [:fx
-       [[:document/remove target]
-        [:document/click {:root parent-node :querySelector ".collapseWebm > a"}]]]))
-
-  (close-clicked {:target {:id "node1" :parentNode {:id "node2"}}})
-
-  (reg-event ::close-clicked close-clicked)
-
-  (let [node {:tagName "VIDEO" :real-node (gensym) :parentNode {:tagName "PARENT" :real-node (gensym)}}]
-    (->
-     (document-node-added-virt node)
-     (first)
-     (second)
-     (:node)
-     (:onclick)))
-
   comment)
+
+;; ==============================
 
 (defn handle-media-changes [v-node]
   (if (= "VIDEO" (:tagName v-node))
@@ -119,14 +68,14 @@
 
 (defonce setup
   (do
-
     (f/reg-event ::document-loaded #'document-loaded)
     (f/reg-event-db ::fade-clicked #'fade-clicked)
 
     (f/reg-event :document-node-added #'handle-media-changes)
     (f/reg-event ::close-clicked #'close-clicked)
 
-    ;; (f/reg-event-db :document-node-added handle-page-changed)
+    (f/reg-event-db :document-node-added #'clear-content)
+    (f/reg-event-db ::document-loaded #'clear-content)
     ;; (f/reg-event-db :extension.domain/db-changed handle-page-changed)
 
     (let [observer
@@ -148,15 +97,6 @@
         div.ext-hover { margin: 5px 0px 45px 0px; grid-row: 2; grid-column: 1; }
         div.post div.file { display: grid }")
       (.append (.-head js/document) style))
-
-    ;; (.observe
-    ;;  (js/MutationObserver.
-    ;;   (fn [mutations _]
-    ;;     (doseq [m mutations]
-    ;;       (doseq [n (.-addedNodes m)]
-    ;;         (f/dispatch [:document-node-added n])))))
-    ;;  (.querySelector js/document "div.board")
-    ;;  #js{"subtree" true "childList" true})
 
     ;; (eff/init)
     (f/dispatch ::document-loaded nil)

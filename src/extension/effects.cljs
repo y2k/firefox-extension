@@ -43,15 +43,6 @@
    (.querySelector (:querySelector p))
    (.click)))
 
-(comment
-
-  (document-click
-   {:root
-    {:real-node (.getElementById js/document "f23541851")}
-    :querySelector ".collapseWebm > a"})
-
-  comment)
-
 (defn- document-remove [p] (.remove (:real-node p)))
 
 (defonce setup

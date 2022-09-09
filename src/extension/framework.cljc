@@ -1,12 +1,12 @@
 (ns extension.framework
   (:require [extension.domain :as d]))
 
-(def listeners (atom {}))
+(def ^:private event-handlers (atom {}))
 
 (def ^:private fx-handlers (atom {}))
 
 (defn reset-all []
-  (reset! listeners {}))
+  (reset! event-handlers {}))
 
 (defn reg-fx [fx-name handler]
   (println "[LOG][reg-fx]" fx-name)
@@ -17,36 +17,20 @@
   nil)
 
 (defn reg-event [event f]
-  (swap! listeners
+  (swap! event-handlers
          (fn [state]
            (update state event (fn [xs] (vec (conj xs f))))))
   nil)
 
 (defn reg-event-db [event f]
-  (swap! listeners
+  (swap! event-handlers
          (fn [state]
            (update state event (fn [xs] (vec (conj xs (fn [e] (f @d/db e))))))))
   nil)
 
-(comment
-  (let [event-name :extension.extension/close-clicked event-param {}]
-    (let [event-handler (event-name @listeners)]
-      (println "event-handler:" event-handler)
-      (if (nil? event-handler)
-        (println "[LOG] EVENT handlers for" event-name "NOT FOUND")
-        (doseq [event-handler event-handler]
-          (let [event-result (event-handler event-param)]
-            (println "event-result=" event-result)
-            (if (some? event-result)
-              (let [[fx-name fx-param] event-result]
-                (let [handlers (fx-name @fx-handlers)]
-                  handlers))))))))
-
-  comment)
-
 (defn dispatch [event-name event-param]
   (println (str "[LOG][dispatch]\n" event-name "\n" event-param))
-  (let [event-handler (event-name @listeners)]
+  (let [event-handler (event-name @event-handlers)]
     (if (nil? event-handler)
       (println "[LOG] EVENT handlers for" event-name "NOT FOUND")
       (doseq [event-handler event-handler]
