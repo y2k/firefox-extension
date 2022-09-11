@@ -10,6 +10,89 @@
    (map (fn [[k v]] [k (.-innerText (.querySelector node v))]))
    (into {})))
 
+(defn clear-content-on-changes [db v-node]
+
+  (if (= "thread" (:class v-node))
+
+    (d/skip-nodes
+     (:exclude (:config db))
+     []))
+
+  (comment
+
+    (defn skip-nodes [exclude nodes]
+      (filter
+       (fn [{title :title body :body :as node}]
+         (let [sample (first (remove str/blank? [title body]))]
+           (apply contains-strings sample exclude)))
+       nodes))
+
+    (ns inject-co-effects
+      (defn select-nodes [root-selector child-selector]
+        [:select-nodes
+         {:selector root-selector
+          :target child-selector}]))
+
+    {:rules
+     [{:input
+       [[:db nil]
+        [:select-nodes
+         {:selector "div.thread:not(.post-hidden)"
+          :target {:title "span.subject"
+                   :body "blockquote.postMessage"
+                   :hide-btn "img.extButton.threadHideButton"}}]]
+       :handler
+       (fn [db nodes]
+         (let [exclude (:exclude (:config db))]
+           (->>
+            nodes
+            (filter
+             (fn [node]
+               (not
+                (or
+                 (apply d/contains-strings (:innerText (:title node)) exclude)
+                 (apply d/contains-strings (:innerText (:body node)) exclude)))))
+            (map
+             (fn [node]
+               [:document/click {:root (:hide-btn node)}])))))}]}
+
+    (reg-event-fx
+     ::document-loaded
+     [(z/select-nodes
+       "div.thread:not(.post-hidden)"
+       {:title "span.subject"
+        :body "blockquote.postMessage"
+        :hide-btn "img.extButton.threadHideButton"})]
+     (fn [{nodes :select-nodes db :db}]
+       (let [exclude (:exclude (:config db))]
+         (->>
+          nodes
+          (filter
+           (fn [{title :title body :body}]
+             (let [sample (first (remove str/blank? [(:innerText title) (:innerText body)]))]
+               (apply d/contains-strings sample exclude))))
+          (map
+           (fn [{node :hide-btn}]
+             [:document/click {:root node}]))))))
+
+;;
+    )
+
+;; (->>
+;;  (.querySelectorAll js/document "div.thread:not(.post-hidden)")
+;;  (map
+;;   (fn [node]
+;;     (->
+;;      (query-model
+      ;; {:title "span.subject"
+      ;;  :body "blockquote.postMessage"
+      ;;  :name "span.name"}
+;;       node)
+;;      (assoc :node node))))
+;;  (d/skip-nodes (:exclude (:config db)))
+;;  (run! (fn [x] (some-> (.querySelector (:node x) "img.extButton.threadHideButton") (.click)))))
+  )
+
 (defn clear-content [db _]
   (->>
    (.querySelectorAll js/document "div.thread:not(.post-hidden)")
@@ -37,17 +120,18 @@
 (defn- fade-clicked [db]
   [:db (assoc db :fade-content (not (:fade-content db)))])
 
-(comment
-  (defn handle-page-changed [n]
-    (if (= (.-className n) "thread")
-      (let
-       [x {:class (str "'" (.-className n) "'")
-           :title (.-innerText (.querySelector n "span.subject"))
-           :body  (.-innerText (.querySelector n "blockquote.postMessage"))
-           :name  (.-innerText (.querySelector n "span.name"))}]
-        (println x))))
+;; (comment
 
-  comment)
+;;   (defn clear-content-on-start [n]
+;;     (if (= (:className n) "thread")
+;;       (let
+;;        [x {:class (str "'" (.-className n) "'")
+;;            :title (.-innerText (.querySelector n "span.subject"))
+;;            :body  (.-innerText (.querySelector n "blockquote.postMessage"))
+;;            :name  (.-innerText (.querySelector n "span.name"))}]
+;;         (println x))))
+
+;;   comment)
 
 ;; ==============================
 
@@ -74,8 +158,8 @@
     (f/reg-event :document-node-added #'handle-media-changes)
     (f/reg-event ::close-clicked #'close-clicked)
 
-    (f/reg-event-db :document-node-added #'clear-content)
-    (f/reg-event-db ::document-loaded #'clear-content)
+    (f/reg-event-db :document-node-added #'clear-content-on-changes)
+    ;; (f/reg-event-db ::document-loaded #'clear-content)
     ;; (f/reg-event-db :extension.domain/db-changed handle-page-changed)
 
     (let [observer
