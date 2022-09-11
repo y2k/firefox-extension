@@ -59,3 +59,13 @@
        (js/browser.storage.local.set (clj->js {:key {:value (:raw-config db)}}))
        (f/dispatch :extension.domain/db-changed nil)))
     nil))
+
+;; Utils
+
+(defn make-post-call []
+  (let [last-timeout-id (atom 0)]
+    (fn [f]
+      (js/clearTimeout @last-timeout-id)
+      (reset!
+       last-timeout-id
+       (js/setTimeout f 0)))))
