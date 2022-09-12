@@ -122,15 +122,15 @@
   (def ^:private cofx-handlers (atom {}))
 
   (defn reg-cofx [name f]
-    ___)
+    (swap! cofx-handlers #(assoc % name f)))
 
   (reg-event-fx
    ::document-loaded
-   [(eff/select-nodes
-     "div.thread:not(.post-hidden)"
-     {:title "span.subject"
-      :body "blockquote.postMessage"
-      :hide-btn "img.extButton.threadHideButton"})]
+   [{:query-selector
+     ["div.thread:not(.post-hidden)"
+      {:title "span.subject"
+       :body "blockquote.postMessage"
+       :hide-btn "img.extButton.threadHideButton"}]}]
    (fn [{nodes :select-nodes db :db}]
      (let [exclude (:exclude (:config db))]
        (->>
@@ -159,44 +159,6 @@
     [:batch
      [[:document/remove target]
       [:document/click {:root parent-node :querySelector ".collapseWebm > a"}]]]))
-
-(comment
-
-  (def stop
-    (let [observer
-          (js/MutationObserver.
-           (fn [mutations _]
-             (doseq [m mutations]
-               (doseq [n (.-addedNodes m)]
-              ;;  (println "call timeout-call")
-                 (timeout-call)))))]
-      (.observe
-       observer
-       (.querySelector js/document "div.board")
-       #js{"subtree" true "childList" true})
-      (fn [] (.disconnect observer))))
-
-  (defn mk-timeout-call []
-    (let [last-timeout-id (atom 0)]
-      (fn []
-        (js/clearTimeout @last-timeout-id)
-        (reset!
-         last-timeout-id
-         (js/setTimeout
-          (fn [] (println "hello"))
-          0)))))
-
-  (def timeout-call
-    (let [last-timeout-id (atom 0)]
-      (fn []
-        (js/clearTimeout @last-timeout-id)
-        (reset!
-         last-timeout-id
-         (js/setTimeout
-          (fn [] (println "hello"))
-          0)))))
-
-  comment)
 
 (defonce setup
   (do
