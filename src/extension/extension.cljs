@@ -98,9 +98,9 @@
       (set!
        (.-innerHTML style)
        "video.expandedWebm { grid-row: 2; grid-column: 1; }
-            div.ext-hover { margin: 5px 0px 45px 0px; grid-row: 2; grid-column: 1; }
-            div.post div.file { display: grid }
-            a.fileThumb img { opacity: 0.05 }")
+        div.ext-hover { margin: 5px 0px 45px 0px; grid-row: 2; grid-column: 1; }
+        div.post div.file { display: grid }
+        a.fileThumb img { opacity: 0.05 }")
       (.append (.-head js/document) style))
 
     (document-loaded)
