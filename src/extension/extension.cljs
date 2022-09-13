@@ -17,6 +17,20 @@
 
 ;; Framework
 
+(defn handle-media-changes []
+  (doseq [node (.querySelectorAll js/document "video.expandedWebm:not(.ext-marked)")]
+    (.add (.-classList node) "ext-marked")
+    (let [parent-node (.-parentNode node)]
+      (.append
+       parent-node
+       (let [close-btn (.createElement js/document "div")]
+         (set! (.-className close-btn) "ext-hover")
+         (set! (.-onclick close-btn)
+               (fn []
+                 (.remove close-btn)
+                 (.click (.querySelector parent-node ".collapseWebm > a"))))
+         close-btn)))))
+
 (defn query-model [model node]
   (->>
    model
@@ -50,6 +64,7 @@
 (defonce db (atom {:config {:exclude []}}))
 
 (defn document-changed []
+  (handle-media-changes)
   (on-document-changed @db))
 
 (defn document-loaded []
