@@ -44,6 +44,7 @@
 
   :figwheel {:css-dirs ["resources/public/css"]
              :nrepl-port 7888
+             :hawk-options {:watcher :polling}
              :nrepl-middleware ["cider.nrepl/cider-middleware"
                                 "refactor-nrepl.middleware/wrap-refactor"
                                 "cemerick.piggieback/wrap-cljs-repl"]}

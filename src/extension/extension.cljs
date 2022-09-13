@@ -38,10 +38,23 @@
    (skip-nodes (:exclude (:config db)))
    (run! (fn [x] (some-> (.querySelector (:node x) "img.extButton.threadHideButton") (.click))))))
 
+(defn- add-user-menu []
+  (->
+   (.querySelector js/document "#navtopright")
+   (.append
+    (let [menu (.createElement js/document "a")]
+      (set! (.-innerText menu) "[FADE]")
+      (set! (.-onclick menu) (fn [] (js/alert "[FADE] clicked")))
+      menu))))
+
 (defonce db (atom {:config {:exclude []}}))
 
 (defn document-changed []
   (on-document-changed @db))
+
+(defn document-loaded []
+  (add-user-menu)
+  (document-changed))
 
 ;; Main
 
@@ -66,6 +79,15 @@
          #js{"subtree" true "childList" true})
         (fn [] (.disconnect observer))))
 
-    (document-changed)
+    (let [style (.createElement js/document "style")]
+      (set!
+       (.-innerHTML style)
+       "video.expandedWebm { grid-row: 2; grid-column: 1; }
+            div.ext-hover { margin: 5px 0px 45px 0px; grid-row: 2; grid-column: 1; }
+            div.post div.file { display: grid }
+            a.fileThumb img { opacity: 0.05 }")
+      (.append (.-head js/document) style))
+
+    (document-loaded)
 
     nil))
