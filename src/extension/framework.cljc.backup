@@ -28,6 +28,21 @@
            (update state event (fn [xs] (vec (conj xs (fn [e] (f @d/db e))))))))
   nil)
 
+(comment
+
+  (defn reg-event-fx [event cofx f]
+    (swap! event-handlers
+           (fn [state]
+             (update state event
+                     (fn [xs]
+                       (vec (conj xs
+                                  (fn [e]
+                                    (let [cofx-map {:db @d/db}]
+                                      (f cofx-map e)))))))))
+    nil)
+
+  comment-end)
+
 (defn dispatch [event-name event-param]
   (println (str "[LOG][dispatch]\n" event-name "\n" event-param))
   (let [event-handler (event-name @event-handlers)]
@@ -44,6 +59,11 @@
                     (println "[LOG] call effect: " fx-name "with param:" fx-param)
                     (doseq [fx-handler handlers]
                       (fx-handler fx-param))))))))))))
+
+(def ^:private cofx-handlers (atom {}))
+
+(defn reg-cofx [name f]
+  (swap! cofx-handlers #(assoc % name f)))
 
 (reg-fx
  :batch

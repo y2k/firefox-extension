@@ -1,3 +1,6 @@
+compile:
+	lein figwheel :once
+
 build:
 	rm -rf resources/public/js && lein cljsbuild once
 
@@ -13,4 +16,4 @@ figwheel:
 test:
 	lein test
 
-.PHONY: figwheel build run_extension run_options test
+.PHONY: figwheel build run_extension run_options test compile
