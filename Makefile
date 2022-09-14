@@ -7,7 +7,7 @@ build:
 run_extension:
 	rm -rf resources/public/js && lein cljsbuild once options && lein figwheel extension
 
-run_options:
+options:
 	rm -rf resources/public/js && lein figwheel options
 
 figwheel:

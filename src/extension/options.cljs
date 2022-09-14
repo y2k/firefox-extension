@@ -1,41 +1,35 @@
 (ns extension.options
-  (:require [extension.domain :as d]))
+  (:require [extension.domain :as d]
+            [clojure.edn :as edn]))
 
-;; Utils
+(defn- update-text-from-db []
+  (->>
+   (d/get-db)
+   (:exclude)
+   (str)
+   (set! (.-value (.getElementById js/document "options-text")))))
 
-(defn- on-click [id f]
-  (set! (.-onclick (.getElementById js/document id)) f))
+(defn document-loaded []
+  (update-text-from-db))
 
-(defn- read-option [] (.getElementById js/document "options-text"))
+(defn- try-parse-db [input-str]
+  (let [cfg (edn/read-string input-str)]
+    (d/set-db {:exclude cfg})
+    (update-text-from-db)))
 
-;; Common CLJ
+(defn save-config []
+  (let [input-str (.-value (.getElementById js/document "options-text"))
+        cfg (edn/read-string input-str)]
+    (d/set-db {:exclude cfg})
+    (update-text-from-db)))
 
-(f/reg-event :extension.domain/db-changed #(f/dispatch ::init nil))
+(defn cancel-config []
+  (d/set-db (d/default-db))
+  (update-text-from-db))
 
-(f/reg-event
- ::init (fn [] (f/dispatch ::update-ui (:raw-config @d/db))))
-
-(f/reg-event
- ::confirm (fn []
-             (let [db (d/try-parse-db (.-value (read-option)))]
-               (if (nil? db)
-                 (f/dispatch ::show-alert "Invalid config")
-                 (f/dispatch ::update-ui (:raw-config @d/db))
-                 (f/dispatch :extension.domain/db-reset-requested db)))))
-
-;; JS CLJ
-
-;; (defonce setup
 (defonce setup
   (do
-    (f/reg-event ::update-ui (fn [msg] (set! (.-value (read-option)) msg)))
-    (f/reg-event ::show-alert (fn [msg] (js/alert msg)))
-    (f/dispatch ::init nil)
-    (eff/init)
-
-    (->>
-     (.querySelectorAll js/document "button[x-event]")
-     (run! (fn [node]
-             (set! (.-onclick node)
-                   #(f/dispatch (keyword (.getAttribute node "x-event")) nil))))))
-  nil)
+    (set! (.-onclick (.querySelector js/document "#confirm")) #(save-config))
+    (set! (.-onclick (.querySelector js/document "#cancel")) #(cancel-config))
+    (document-loaded)
+    nil))

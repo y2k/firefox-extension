@@ -1,7 +1,13 @@
 (ns extension.domain
   (:require [clojure.string :as str]
-            [clojure.edn :as edn]
-            [clojure.spec.alpha :as spec]))
+            [clojure.edn :as edn]))
+
+(defn default-db [] {:exclude []})
+
+(def ^:private db (atom (default-db)))
+
+(defn get-db [] @db)
+(defn set-db [new-db] (reset! db new-db))
 
 ;; (spec/def ::exclude (spec/coll-of string?))
 ;; (spec/def ::preferences (spec/keys :req-un [::exclude]))
