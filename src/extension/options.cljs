@@ -1,7 +1,5 @@
 (ns extension.options
-  (:require [extension.domain :as d]
-            [extension.framework :as f]
-            [extension.effects :as eff]))
+  (:require [extension.domain :as d]))
 
 ;; Utils
 
