@@ -1,5 +1,6 @@
 (ns extension.extension
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [extension.storage :as s]))
 
 ;; Domain
 
@@ -75,7 +76,6 @@
 
 (defonce setup
   (do
-
     (def stop
       (let [post-call (let [last-timeout-id (atom 0)]
                         (fn []
@@ -103,6 +103,6 @@
         a.fileThumb img { opacity: 0.05 }")
       (.append (.-head js/document) style))
 
-    (document-loaded)
+    (s/load-prefs #'document-loaded)
 
     nil))

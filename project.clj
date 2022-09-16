@@ -8,7 +8,6 @@
                  [org.clojure/clojurescript "1.11.60"]
                  [org.clojure/core.async  "0.4.500"]
                  [cider/cider-nrepl "0.25.11"]
-
                  [cider/piggieback "0.5.3"]
                  [figwheel-sidecar "0.5.20"]]
 
@@ -22,27 +21,34 @@
                 :source-paths ["src"]
                 :figwheel {}
                 :compiler {:main extension.extension
-                           :asset-path "http://localhost:3449/js/compiled/out_ext"
-                           :output-to "resources/public/js/compiled/extension.js"
-                           :output-dir "resources/public/js/compiled/out_ext"
+                           :asset-path "http://localhost:3449/js/out_ext"
+                           :output-to "resources/js/extension.js"
+                           :output-dir "resources/js/out_ext"
                            :source-map-timestamp true}}
                {:id "options"
                 :source-paths ["src"]
                 :figwheel {}
                 :compiler {:main extension.options
-                           :asset-path "js/compiled/out_opt"
-                           :output-to "resources/public/js/compiled/options.js"
-                           :output-dir "resources/public/js/compiled/out_opt"
+                           :asset-path "js/out_opt"
+                           :output-to "resources/js/options.js"
+                           :output-dir "resources/js/out_opt"
                            :source-map-timestamp true}}
                {:id "min"
                 :source-paths ["src"]
                 :compiler {:main extension.extension
-                           :output-to "resources/public/js/compiled/extension.js"
+                           :output-to "resources/js/extension.js"
                            :optimizations :advanced
-                           :output-dir "resources/public/js/compiled/out_min"
+                           :output-dir "resources/js/out_min"
+                           :pretty-print false}}
+               {:id "min-options"
+                :source-paths ["src"]
+                :compiler {:main extension.options
+                           :output-to "resources/js/options.js"
+                           :optimizations :advanced
+                           :output-dir "resources/js/out_min_options"
                            :pretty-print false}}]}
 
-  :figwheel {:css-dirs ["resources/public/css"]
+  :figwheel {:css-dirs ["resources/css"]
              :nrepl-port 7888
              :hawk-options {:watcher :polling}
              :nrepl-middleware ["cider.nrepl/cider-middleware"
@@ -55,11 +61,11 @@
                              [figwheel-sidecar "0.5.20"]]
               :source-paths ["src" "dev"]
               :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
-              :clean-targets ^{:protect false} ["resources/public/js/compiled"
+              :clean-targets ^{:protect false} ["resources/js/compiled"
                                                 :target-path]}
              :options
              {:dependencies [[binaryage/devtools "1.0.0"]
                              [figwheel-sidecar "0.5.20"]]
               :source-paths ["src" "dev"]
-              :clean-targets ^{:protect false} ["resources/public/js/compiled"
+              :clean-targets ^{:protect false} ["resources/js/compiled"
                                                 :target-path]}})

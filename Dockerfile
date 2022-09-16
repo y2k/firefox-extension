@@ -6,7 +6,8 @@ COPY project.clj .
 
 RUN lein cljsbuild once
 
+COPY Makefile .
 COPY src/extension/*.cljs src/extension/
 COPY src/extension/*.cljc src/extension/
 
-RUN lein cljsbuild once min
+RUN make publish
