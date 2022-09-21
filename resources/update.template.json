@@ -1,0 +1,12 @@
+{
+    "addons": {
+      "{abcd1234-1abc-1234-12ab-abcdef123456}": {
+        "updates": [
+          {
+            "version": "1.0.__CODE_VERSION__",
+            "update_link": "https://y2k.github.io/ff_ext/my-extension.zip"
+          }
+        ]
+      }
+    }
+}
