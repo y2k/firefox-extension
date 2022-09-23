@@ -21,4 +21,5 @@ RUN make publish
 
 FROM scratch
 COPY --from=0 /app/resources/my-extension.zip /build_result/
+COPY --from=0 /app/resources/updates.json /build_result/
 CMD [""]
