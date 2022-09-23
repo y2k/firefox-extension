@@ -4,7 +4,8 @@
     "version": "1.0.0",
     "browser_specific_settings": {
         "gecko": {
-            "id": "extension1@y2k.work"
+            "id": "extension1@y2k.work",
+            "update_url": "https://y2k.github.io/ff_ext/updates.json"
         }
     },
     "options_ui": {

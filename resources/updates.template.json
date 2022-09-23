@@ -1,6 +1,6 @@
 {
     "addons": {
-      "{abcd1234-1abc-1234-12ab-abcdef123456}": {
+      "extension1@y2k.work": {
         "updates": [
           {
             "version": "1.0.__CODE_VERSION__",
