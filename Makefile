@@ -20,6 +20,6 @@ test:
 	lein test
 
 publish:
-	lein cljsbuild once min min-options && cd resources && zip my-extension.zip manifest.json options.html js/options.js js/extension.js
+	lein cljsbuild once min min-options && cd resources && zip my-extension.zip manifest.json options.html js/options.js js/extension.js && cat updates.template.json | sed "s/__CODE_VERSION__/$$(git rev-list --count master)/" > updates.json
 
-.PHONY: figwheel build run_extension run_options test compile clean publish
+.PHONY: figwheel build run_extension run_options test compile clean publish publish_set_version

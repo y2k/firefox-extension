@@ -9,6 +9,7 @@ COPY project.clj .
 RUN lein cljsbuild once
 
 COPY Makefile .
+COPY resources/updates.template.json resources/
 COPY resources/manifest.json resources/
 COPY resources/options.html resources/
 COPY src/extension/*.cljs src/extension/

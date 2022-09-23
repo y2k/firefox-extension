@@ -17,3 +17,5 @@ pom.xml
 /playground
 /__local/
 .cljs_node_repl/
+updates.json
+my-extension.zip
