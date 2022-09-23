@@ -1,5 +1,7 @@
 FROM clojure:temurin-8-lein-2.9.10-focal
 
+ARG EXT_VERSION
+
 RUN apt-get update && apt-get install -y zip
 
 WORKDIR /app
