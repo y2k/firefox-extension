@@ -1,7 +1,5 @@
 FROM clojure:temurin-8-lein-2.9.10-focal
 
-ARG EXT_VERSION
-
 RUN apt-get update && apt-get install -y zip
 
 WORKDIR /app
@@ -9,6 +7,8 @@ WORKDIR /app
 COPY project.clj .
 
 RUN lein cljsbuild once
+
+ARG EXT_VERSION
 
 COPY Makefile .
 COPY resources/updates.template.json resources/

@@ -20,7 +20,7 @@ test:
 	lein test
 
 set_manifest_version:
-	cd resources && cat manifest.json | sed "s/\"version\": \"1.0.0\"/\"version\": \"1.0.$$EXT_VERSION\"/" > manifest.json
+	cd resources && cat manifest.json | sed "s/\"version\": \"1.0.0\"/\"version\": \"1.0.$$EXT_VERSION\"/" > manifest.temp && mv manifest.temp manifest.json
 
 publish: test set_manifest_version
 	lein cljsbuild once min min-options && cd resources && zip my-extension.zip manifest.json options.html js/options.js js/extension.js && cat updates.template.json | sed "s/__CODE_VERSION__/$$EXT_VERSION/" > updates.json
