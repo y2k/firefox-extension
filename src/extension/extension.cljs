@@ -1,24 +1,11 @@
 (ns extension.extension
   (:require [clojure.string :as str]
+            [extension.domain :as d]
             [extension.storage :as s]))
-
-;; Domain
-
-(defn- contains-strings [s & subs]
-  (let [low-s (str/lower-case s)
-        low-subs (mapv (fn [x] (str/lower-case x)) subs)]
-    (boolean (some (fn [x] (str/includes? low-s x)) low-subs))))
-
-(defn skip-nodes [exclude nodes]
-  (filter
-   (fn [{title :title body :body :as node}]
-     (let [sample (first (remove str/blank? [(:innerText title) (:innerText body)]))]
-       (apply contains-strings sample exclude)))
-   nodes))
 
 ;; Framework
 
-(defn handle-media-changes []
+(defn- handle-media-changes []
   (doseq [node (.querySelectorAll js/document "video.expandedWebm:not(.ext-marked)")]
     (.add (.-classList node) "ext-marked")
     (let [parent-node (.-parentNode node)]
@@ -32,44 +19,55 @@
                  (.click (.querySelector parent-node ".collapseWebm > a"))))
          close-btn)))))
 
-(defn query-model [model node]
+(defn- query-model [model node]
   (->>
    model
-   (map (fn [[k v]] [k {:innerText (.-innerText (.querySelector node v))}]))
+   (map (fn [[k v]] [k {:raw-node (.querySelector node v)
+                        :innerText (.-innerText (.querySelector node v))}]))
    (into {})))
 
-(defn on-document-changed [db]
+(defn- execute-command [cmd]
+  (fn [cmd]
+    (cond
+      (= :click (get cmd 0))
+      (some->
+       (:raw-node (get cmd 1))
+       (.click))
+
+      (= :add-element (get cmd 0))
+      (->
+       (:raw-node (get cmd 1))
+       (.append
+        (let [menu (.createElement js/document (:tag (get cmd 1)))]
+          (set! (.-innerText menu) (:innerText (get cmd 1)))
+          (set! (.-onclick menu)
+                (fn []
+                  (doseq [cmd ((:onclick (get cmd 1)))]
+                    (execute-command cmd))))
+          menu)))
+
+      (= :update-db (get cmd 0))
+      (do
+        (d/update-db (fn [db] ((get cmd 1) db)))
+        (s/save-prefs)))))
+
+(defn- on-document-changed [fbegin fend]
   (->>
-   (.querySelectorAll js/document "div.thread:not(.post-hidden)")
+   (.querySelectorAll js/document (get (fbegin) 0))
    (map
     (fn [node]
       (->
-       (query-model
-        {:title "span.subject"
-         :body "blockquote.postMessage"
-         :name "span.name"}
-        node)
+       (query-model (get (fbegin) 1) node)
        (assoc :node node))))
-   (skip-nodes (:exclude (:config db)))
-   (run! (fn [x] (some-> (.querySelector (:node x) "img.extButton.threadHideButton") (.click))))))
+   (fend (d/get-db))
+   (run! execute-command)))
 
-(defn- add-user-menu []
-  (->
-   (.querySelector js/document "#navtopright")
-   (.append
-    (let [menu (.createElement js/document "a")]
-      (set! (.-innerText menu) "[FADE]")
-      (set! (.-onclick menu) (fn [] (js/alert "[FADE] clicked")))
-      menu))))
-
-(defonce db (atom {:config {:exclude []}}))
-
-(defn document-changed []
+(defn- document-changed []
   (handle-media-changes)
-  (on-document-changed @db))
+  (on-document-changed d/on-document-changed-begin d/on-document-changed-end))
 
-(defn document-loaded []
-  (add-user-menu)
+(defn- document-loaded []
+  (on-document-changed d/add-user-menu-begin d/add-user-menu-end)
   (document-changed))
 
 ;; Main

@@ -1,5 +1,5 @@
-compile:
-	lein figwheel :once
+check:
+	lein figwheel :once extension options
 
 clean:
 	rm -rf resources/js
@@ -25,4 +25,4 @@ set_manifest_version:
 publish: test set_manifest_version
 	lein cljsbuild once min min-options && cd resources && zip my-extension.zip manifest.json options.html js/options.js js/extension.js && cat updates.template.json | sed "s/__CODE_VERSION__/$$EXT_VERSION/" > updates.json
 
-.PHONY: figwheel build run_extension run_options test compile clean publish set_manifest_version
+.PHONY: figwheel build run_extension run_options test check clean publish set_manifest_version
