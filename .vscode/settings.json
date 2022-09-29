@@ -1,9 +1,17 @@
 {
     "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "_build/": true,
         ".rebel_*": true,
         "target/": true,
         "figwheel_server.log": true,
         ".lein-*": true,
         ".nrepl-*": true,
+        "**/.vscode":true
     }
 }

@@ -27,29 +27,26 @@
    (into {})))
 
 (defn- execute-command [cmd]
-  (fn [cmd]
-    (cond
-      (= :click (get cmd 0))
-      (some->
-       (:raw-node (get cmd 1))
-       (.click))
+  (fn [[cmd-name cmd-arg]]
+    (case cmd-name
+      :click (some->
+              (:raw-node cmd-arg)
+              (.click))
 
-      (= :add-element (get cmd 0))
-      (->
-       (:raw-node (get cmd 1))
-       (.append
-        (let [menu (.createElement js/document (:tag (get cmd 1)))]
-          (set! (.-innerText menu) (:innerText (get cmd 1)))
-          (set! (.-onclick menu)
-                (fn []
-                  (doseq [cmd ((:onclick (get cmd 1)))]
-                    (execute-command cmd))))
-          menu)))
+      :add-element (->
+                    (:raw-node cmd-arg)
+                    (.append
+                     (let [menu (.createElement js/document (:tag cmd-arg))]
+                       (set! (.-innerText menu) (:innerText cmd-arg))
+                       (set! (.-onclick menu)
+                             (fn []
+                               (doseq [cmd ((:onclick cmd-arg))]
+                                 (execute-command cmd))))
+                       menu)))
 
-      (= :update-db (get cmd 0))
-      (do
-        (d/update-db (fn [db] ((get cmd 1) db)))
-        (s/save-prefs)))))
+      :update-db (do
+                   (d/update-db (fn [db] (cmd-arg db)))
+                   (s/save-prefs)))))
 
 (defn- on-document-changed [fbegin fend]
   (->>
