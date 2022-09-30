@@ -4,7 +4,7 @@
 {
     "manifest_version": 2,
     "name": "sample-extension",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "browser_specific_settings": {
         "gecko": {
             "id": "extension1@y2k.work",
