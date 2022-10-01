@@ -14,7 +14,8 @@
          (.-value)
          (edn/read-string)
          (d/set-db))
-        (callback))))))
+        (callback))))
+    (callback)))
 
 (defn save-prefs []
   (if (exists? js/browser)

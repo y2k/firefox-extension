@@ -5,48 +5,61 @@
 
 ;; Framework
 
-(defn- handle-media-changes []
-  (doseq [node (.querySelectorAll js/document "video.expandedWebm:not(.ext-marked)")]
-    (.add (.-classList node) "ext-marked")
-    (let [parent-node (.-parentNode node)]
-      (.append
-       parent-node
-       (let [close-btn (.createElement js/document "div")]
-         (set! (.-className close-btn) "ext-hover")
-         (set! (.-onclick close-btn)
-               (fn []
-                 (.remove close-btn)
-                 (.click (.querySelector parent-node ".collapseWebm > a"))))
-         close-btn)))))
+;; (defn- handle-media-changes []
+;;   (doseq [node (.querySelectorAll js/document "video.expandedWebm:not(.ext-marked)")]
+;;     (.add (.-classList node) "ext-marked")
+;;     (let [parent-node (.-parentNode node)]
+;;       (.append
+;;        parent-node
+;;        (let [close-btn (.createElement js/document "div")]
+;;          (set! (.-className close-btn) "ext-hover")
+;;          (set! (.-onclick close-btn)
+;;                (fn []
+;;                  (.remove close-btn)
+;;                  (.click (.querySelector parent-node ".collapseWebm > a"))))
+;;          close-btn)))))
 
-(defn- query-model [model node]
-  (->>
-   model
-   (map (fn [[k v]] [k {:raw-node (.querySelector node v)
-                        :innerText (.-innerText (.querySelector node v))}]))
-   (into {})))
+(defn- get-real-node [vnode]
+  (case (:type vnode)
+    :node (:raw-node vnode)
+    :parent (.-parentNode (get-real-node (:target vnode)))
+    :selector (.querySelector (get-real-node (:target vnode)) (:selector vnode))))
 
 (defn- execute-command [cmd]
-  (fn [[cmd-name cmd-arg]]
+  (let [[cmd-name cmd-arg] cmd]
+    (d/trace "[execute-command]" (str "name: " cmd-name ", arg: " cmd-arg))
     (case cmd-name
       :click (some->
-              (:raw-node cmd-arg)
+              (get-real-node cmd-arg)
               (.click))
 
+      :add-class (.add (.-classList (get-real-node (:target cmd-arg))) (:class cmd-arg))
+
+      :remove-node (.remove (get-real-node cmd-arg))
+
       :add-element (->
-                    (:raw-node cmd-arg)
+                    (get-real-node (:target cmd-arg))
                     (.append
                      (let [menu (.createElement js/document (:tag cmd-arg))]
+                       (set! (.-className menu) (:class cmd-arg))
                        (set! (.-innerText menu) (:innerText cmd-arg))
                        (set! (.-onclick menu)
-                             (fn []
-                               (doseq [cmd ((:onclick cmd-arg))]
+                             (fn [e]
+                               (doseq [cmd ((:onclick cmd-arg) {:target {:type :node :raw-node (.-target e)}})]
                                  (execute-command cmd))))
                        menu)))
 
       :update-db (do
                    (d/update-db (fn [db] (cmd-arg db)))
                    (s/save-prefs)))))
+
+(defn- query-model [model node]
+  (->>
+   model
+   (map (fn [[k v]] [k {:type :node
+                        :raw-node (.querySelector node v)
+                        :innerText (.-innerText (.querySelector node v))}]))
+   (into {})))
 
 (defn- on-document-changed [fbegin fend]
   (->>
@@ -55,12 +68,12 @@
     (fn [node]
       (->
        (query-model (get (fbegin) 1) node)
-       (assoc :node node))))
+       (assoc :node {:type :node :raw-node node}))))
    (fend (d/get-db))
    (run! execute-command)))
 
 (defn- document-changed []
-  (handle-media-changes)
+  (on-document-changed d/handle-media-changes-begin d/handle-media-changes-end)
   (on-document-changed d/on-document-changed-begin d/on-document-changed-end))
 
 (defn- document-loaded []

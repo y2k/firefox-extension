@@ -27,7 +27,7 @@
    (=
     [[:click {:raw-node "button" :innerText "C"}]]
     (d/on-document-changed-end
-     {:config {:exclude ["READ"]}}
+     {:exclude ["READ"]}
      [{:node {:raw-node "node"}
        :title {:raw-node "title" :innerText "READ"}
        :body {:raw-node "body" :innerText "B"}
@@ -38,7 +38,7 @@
    (=
     [[:click {:raw-node "button" :innerText "C"}]]
     (d/on-document-changed-end
-     {:config {:exclude ["READ"]}}
+     {:exclude ["READ"]}
      [{:node {:raw-node "node"}
        :title {:raw-node "title" :innerText ""}
        :body {:raw-node "body" :innerText "READ"}
@@ -48,14 +48,28 @@
   (is (= ["#navtopright" {}] (d/add-user-menu-begin))))
 
 (deftest test41
-  (let [actual (d/add-user-menu-end {} [])]
+  (let [node (gensym)
+        actual (d/add-user-menu-end {} [{:node node}])]
     (is
      (=
       [[:add-element
-        {:root nil
+        {:target node
          :tag "A"
          :innerText "[FADE]"}]]
       (map
-       (fn [[name params]]
-         [name
-          (dissoc params :onclick)]) actual)))))
+       (fn [[name params]] [name (dissoc params :onclick)])
+       actual)))))
+
+(deftest test51
+  (is (= ["video.expandedWebm:not(.ext-marked)" {}] (d/handle-media-changes-begin))))
+
+(deftest test61
+  (let [node (gensym)
+        actual (d/handle-media-changes-end {} [{:node node}])]
+    (is
+     (=
+      [[:add-class {:target node :class "ext-marked"}]
+       [:add-element {:target {:type :parent :target node} :tag "DIV" :class "ext-hover"}]]
+      (map
+       (fn [[name params]] [name (dissoc params :onclick)])
+       actual)))))
