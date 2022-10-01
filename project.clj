@@ -21,9 +21,7 @@
                 :source-paths ["src"]
                 :figwheel {}
                 :compiler {:main extension.extension
-                           :asset-path "http://localhost:3449/js/out_ext"
-                           :output-to "resources/js/extension.js"
-                           :output-dir "resources/js/out_ext"
+                           :output-to "resources/public/extension.js"
                            :source-map-timestamp true}}
                {:id "options"
                 :source-paths ["src"]
@@ -48,9 +46,9 @@
                            :output-dir "resources/js/out_min_options"
                            :pretty-print false}}]}
 
-  :figwheel {:css-dirs ["resources/css"]
+  :figwheel {:hawk-options {:watcher :polling}
+            ;;  :css-dirs ["resources/css"]
              :nrepl-port 7888
-             :hawk-options {:watcher :polling}
              :nrepl-middleware ["cider.nrepl/cider-middleware"
                                 "refactor-nrepl.middleware/wrap-refactor"
                                 "cemerick.piggieback/wrap-cljs-repl"]}

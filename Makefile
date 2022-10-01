@@ -14,7 +14,7 @@ options:
 	rm -rf resources/js && lein figwheel options
 
 figwheel:
-	rm -rf resources/js && lein figwheel extension
+	rm -rf resources/public && lein figwheel extension
 
 test:
 	lein test

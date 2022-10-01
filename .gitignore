@@ -20,3 +20,4 @@ pom.xml
 .cljs_node_repl/
 updates.json
 my-extension.zip
+/resources/public
