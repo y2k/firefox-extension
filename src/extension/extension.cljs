@@ -5,19 +5,11 @@
 
 ;; Framework
 
-;; (defn- handle-media-changes []
-;;   (doseq [node (.querySelectorAll js/document "video.expandedWebm:not(.ext-marked)")]
-;;     (.add (.-classList node) "ext-marked")
-;;     (let [parent-node (.-parentNode node)]
-;;       (.append
-;;        parent-node
-;;        (let [close-btn (.createElement js/document "div")]
-;;          (set! (.-className close-btn) "ext-hover")
-;;          (set! (.-onclick close-btn)
-;;                (fn []
-;;                  (.remove close-btn)
-;;                  (.click (.querySelector parent-node ".collapseWebm > a"))))
-;;          close-btn)))))
+(defn- sync-css-variables []
+  (let [r (.querySelector js/document ":root")
+        vars (:css-variables (d/get-db))]
+    (doseq [[k v] vars]
+      (.setProperty r.style k v))))
 
 (defn- get-real-node [vnode]
   (case (:type vnode)
@@ -45,13 +37,19 @@
                        (set! (.-innerText menu) (:innerText cmd-arg))
                        (set! (.-onclick menu)
                              (fn [e]
-                               (doseq [cmd ((:onclick cmd-arg) {:target {:type :node :raw-node (.-target e)}})]
+                               (doseq [cmd ((:onclick cmd-arg) (d/get-db) {:target {:type :node :raw-node (.-target e)}})]
                                  (execute-command cmd))))
                        menu)))
 
+      :db (do
+            (d/set-db cmd-arg)
+            (s/save-prefs)
+            (sync-css-variables))
+
       :update-db (do
                    (d/update-db (fn [db] (cmd-arg db)))
-                   (s/save-prefs)))))
+                   (s/save-prefs)
+                   (sync-css-variables)))))
 
 (defn- query-model [model node]
   (->>
@@ -108,7 +106,7 @@
        "video.expandedWebm { grid-row: 2; grid-column: 1; }
         div.ext-hover { margin: 5px 0px 45px 0px; grid-row: 2; grid-column: 1; }
         div.post div.file { display: grid }
-        a.fileThumb img { opacity: 0.05 }")
+        a.fileThumb img { opacity: var(--ext_content_opacity) }")
       (.append (.-head js/document) style))
 
     (s/load-prefs #'document-loaded)

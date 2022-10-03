@@ -54,25 +54,37 @@
     (fn [entity]
       [[:click (:button entity)]]))))
 
-;; =========================================================
+;; ====================== USER MENU ======================
 
 (defn add-user-menu-begin []
   ["#navtopright" {}])
+
+(defn fade-clicked [db _]
+  [[:db (update db :css-variables (fn [vars]
+                                    (assoc vars "--ext_content_opacity"
+                                           (if (not= "0.05" (get vars "--ext_content_opacity"))
+                                             "0.05"
+                                             "1.0"))))]])
 
 (defn add-user-menu-end [_ entities]
   [[:add-element
     {:target (:node (nth entities 0))
      :tag "A"
      :innerText "[FADE]"
-     :onclick
-     (fn []
-       [[:update-db (fn [db] (update db :toggle-visible not))]])}]])
+     :onclick #'fade-clicked}]])
 
 ;; =========================================================
 
 (defn handle-media-changes-begin []
   ["video.expandedWebm:not(.ext-marked)"
    {}])
+
+(defn media-clicked [parent-node e]
+  [[:remove-node (:target e)]
+   [:click
+    {:type :selector
+     :target parent-node
+     :selector ".collapseWebm > a"}]])
 
 (defn handle-media-changes-end [_ entities]
   (mapcat
@@ -86,11 +98,5 @@
          {:target parent-node
           :tag "DIV"
           :class "ext-hover"
-          :onclick
-          (fn [e]
-            [[:remove-node (:target e)]
-             [:click
-              {:type :selector
-               :target parent-node
-               :selector ".collapseWebm > a"}]])}]]))
+          :onclick (fn [_ e] (media-clicked parent-node e))}]]))
    entities))

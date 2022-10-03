@@ -1,5 +1,5 @@
 check:
-	lein figwheel :once extension options
+	lein figwheel :once
 
 clean:
 	rm -rf resources/js

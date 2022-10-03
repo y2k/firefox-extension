@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [extension.domain :as d]))
 
-(deftest test1
+(deftest test111
   (is
    (=
     ["div.thread:not(.post-hidden)"
@@ -11,7 +11,7 @@
       :button "img.extButton.threadHideButton"}]
     (d/on-document-changed-begin))))
 
-(deftest test21
+(deftest test121
   (is
    (=
     []
@@ -22,7 +22,7 @@
        :body {:raw-node "body" :innerText "B"}
        :button {:raw-node "button" :innerText "C"}}]))))
 
-(deftest test22
+(deftest test122
   (is
    (=
     [[:click {:raw-node "button" :innerText "C"}]]
@@ -33,7 +33,7 @@
        :body {:raw-node "body" :innerText "B"}
        :button {:raw-node "button" :innerText "C"}}]))))
 
-(deftest test23
+(deftest test123
   (is
    (=
     [[:click {:raw-node "button" :innerText "C"}]]
@@ -44,10 +44,10 @@
        :body {:raw-node "body" :innerText "READ"}
        :button {:raw-node "button" :innerText "C"}}]))))
 
-(deftest test31
+(deftest test211
   (is (= ["#navtopright" {}] (d/add-user-menu-begin))))
 
-(deftest test41
+(deftest test221
   (let [node (gensym)
         actual (d/add-user-menu-end {} [{:node node}])]
     (is
@@ -60,10 +60,20 @@
        (fn [[name params]] [name (dissoc params :onclick)])
        actual)))))
 
-(deftest test51
+(deftest test231
+  (is (=
+       [[:db {:css-variables {"--ext_content_opacity" "0.05"}}]]
+       (d/fade-clicked nil nil))))
+
+(deftest test232
+  (is (=
+       [[:db {:css-variables {"--ext_content_opacity" "0.05"}}]]
+       (d/fade-clicked {:css-variables {"--ext_content_opacity" "1.0"}} nil))))
+
+(deftest test311
   (is (= ["video.expandedWebm:not(.ext-marked)" {}] (d/handle-media-changes-begin))))
 
-(deftest test61
+(deftest test321
   (let [node (gensym)
         actual (d/handle-media-changes-end {} [{:node node}])]
     (is
@@ -73,3 +83,9 @@
       (map
        (fn [[name params]] [name (dissoc params :onclick)])
        actual)))))
+
+(deftest test331
+  (is (=
+       [[:remove-node "target"]
+        [:click {:type :selector, :target "parent", :selector ".collapseWebm > a"}]]
+       (d/media-clicked "parent" {:target "target"}))))
