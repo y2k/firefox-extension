@@ -19,7 +19,6 @@
 
 (defn- execute-command [cmd]
   (let [[cmd-name cmd-arg] cmd]
-    (d/trace "[execute-command]" (str "name: " cmd-name ", arg: " cmd-arg))
     (case cmd-name
       :click (some->
               (get-real-node cmd-arg)

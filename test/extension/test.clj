@@ -85,7 +85,8 @@
        actual)))))
 
 (deftest test331
-  (is (=
-       [[:remove-node "target"]
-        [:click {:type :selector, :target "parent", :selector ".collapseWebm > a"}]]
-       (d/media-clicked "parent" {:target "target"}))))
+  (let [parent (gensym) target (gensym)]
+    (is (=
+         [[:remove-node target]
+          [:click {:type :selector, :target parent, :selector ".collapseWebm > a"}]]
+         (d/media-clicked parent {:target target})))))
