@@ -17,38 +17,46 @@
     :parent (.-parentNode (get-real-node (:target vnode)))
     :selector (.querySelector (get-real-node (:target vnode)) (:selector vnode))))
 
-(defn- execute-command [cmd]
+(defn- add-node [target vnode]
+  (.append
+   target
+   (let [node (.createElement js/document (:tag vnode))]
+     (some->> (:class vnode) (set! (.-className node)))
+     (some->> (:innerText vnode) (set! (.-innerText node)))
+     (some->> (:value vnode) (set! (.-value node)))
+     (if-let [f (:onchange vnode)]
+       (set! (.-onchange node)
+             (fn [e]
+               (doseq [cmd (f (d/get-db) {:target {:type :node :value (.-value (.-target e)) :raw-node (.-target e)}})]
+                 (execute-command cmd)))))
+     (if-let [f (:onclick vnode)]
+       (set! (.-onclick node)
+             (fn [e]
+               (doseq [cmd (f (d/get-db) {:target {:type :node :raw-node (.-target e)}})]
+                 (execute-command cmd)))))
+     (doseq [child (:children vnode)]
+       (add-node node child))
+     node)))
+
+(defn execute-command [cmd]
+  (d/trace "execute-command" cmd)
   (let [[cmd-name cmd-arg] cmd]
     (case cmd-name
+      :io (cmd-arg)
       :click (some->
               (get-real-node cmd-arg)
               (.click))
 
+      :set-value (set! (.-value (get-real-node (:target cmd-arg))) (:value cmd-arg))
       :add-class (.add (.-classList (get-real-node (:target cmd-arg))) (:class cmd-arg))
 
       :remove-node (.remove (get-real-node cmd-arg))
-
-      :add-element (->
-                    (get-real-node (:target cmd-arg))
-                    (.append
-                     (let [menu (.createElement js/document (:tag cmd-arg))]
-                       (set! (.-className menu) (:class cmd-arg))
-                       (set! (.-innerText menu) (:innerText cmd-arg))
-                       (set! (.-onclick menu)
-                             (fn [e]
-                               (doseq [cmd ((:onclick cmd-arg) (d/get-db) {:target {:type :node :raw-node (.-target e)}})]
-                                 (execute-command cmd))))
-                       menu)))
+      :add-element (add-node (get-real-node (:target cmd-arg)) cmd-arg)
 
       :db (do
             (d/set-db cmd-arg)
             (s/save-prefs)
-            (sync-css-variables))
-
-      :update-db (do
-                   (d/update-db (fn [db] (cmd-arg db)))
-                   (s/save-prefs)
-                   (sync-css-variables)))))
+            (sync-css-variables)))))
 
 (defn- query-model [model node]
   (->>
