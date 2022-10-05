@@ -100,3 +100,38 @@
           :class "ext-hover"
           :onclick (fn [_ e] (media-clicked parent-node e))}]]))
    entities))
+
+;; ====================== EXTENSION OPTIONS ======================
+
+(defn make-options [id db parent-node]
+  [[:add-element
+    {:target parent-node
+     :tag "DIV"
+     :children
+     [{:tag "DIV"
+       :class "panel-section panel-section-formElements"
+       :children
+       [{:tag "DIV"
+         :class "panel-formElements-item"
+         :children
+         [{:tag "TEXTAREA"
+           :onchange (fn [db e] [[:db (update-in db id (fn [db] (assoc db :input (:value (:target e)))))]])
+           :value (-> db (:exclude) (str))
+           :class "browser-style text1"}]}]}
+      {:tag "FOOTER"
+       :class "panel-section panel-section-footer"
+       :children
+       [{:tag "BUTTON"
+         :class "panel-section-footer-button"
+         :innerText "Cancel"
+         :onclick (fn [db]
+                    [[:set-value {:target {:type :selector :target parent-node :selector ".text1"}
+                                  :value (-> db (:exclude) (str))}]])}
+        {:tag "DIV"
+         :class "panel-section-footer-separator"}
+        {:tag "BUTTON"
+         :class "panel-section-footer-button default"
+         :innerText "Confirm"
+         :onclick (fn [db]
+                    (let [cfg (edn/read-string (:input (get-in db id)))]
+                      [[:db (assoc db :exclude cfg)]]))}]}]}]])
