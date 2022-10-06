@@ -67,11 +67,10 @@
                                              "1.0"))))]])
 
 (defn add-user-menu-end [_ entities]
-  [[:add-element
+  [[:add-node
     {:target (:node (nth entities 0))
-     :tag "A"
-     :innerText "[FADE]"
-     :onclick #'fade-clicked}]])
+     :node [:a {:innerText "[FADE]"
+                :onclick #'fade-clicked}]}]])
 
 ;; =========================================================
 
@@ -94,44 +93,34 @@
        [[:add-class
          {:target (:node entity)
           :class "ext-marked"}]
-        [:add-element
+        [:add-node
          {:target parent-node
-          :tag "DIV"
-          :class "ext-hover"
-          :onclick (fn [_ e] (media-clicked parent-node e))}]]))
+          :node [:div {:class "ext-hover"
+                       :onclick (fn [_ e] (media-clicked parent-node e))}]}]]))
    entities))
 
 ;; ====================== EXTENSION OPTIONS ======================
 
 (defn make-options [id db parent-node]
-  [[:add-element
+  [[:add-node
     {:target parent-node
-     :tag "DIV"
-     :children
-     [{:tag "DIV"
-       :class "panel-section panel-section-formElements"
-       :children
-       [{:tag "DIV"
-         :class "panel-formElements-item"
-         :children
-         [{:tag "TEXTAREA"
-           :onchange (fn [db e] [[:db (update-in db id (fn [db] (assoc db :input (:value (:target e)))))]])
-           :value (-> db (:exclude) (str))
-           :class "browser-style text1"}]}]}
-      {:tag "FOOTER"
-       :class "panel-section panel-section-footer"
-       :children
-       [{:tag "BUTTON"
-         :class "panel-section-footer-button"
-         :innerText "Cancel"
-         :onclick (fn [db]
-                    [[:set-value {:target {:type :selector :target parent-node :selector ".text1"}
-                                  :value (-> db (:exclude) (str))}]])}
-        {:tag "DIV"
-         :class "panel-section-footer-separator"}
-        {:tag "BUTTON"
-         :class "panel-section-footer-button default"
-         :innerText "Confirm"
-         :onclick (fn [db]
-                    (let [cfg (edn/read-string (:input (get-in db id)))]
-                      [[:db (assoc db :exclude cfg)]]))}]}]}]])
+     :node
+     [:div {}
+      [:div {:className "panel-section panel-section-formElements"}
+       [:div {:className "panel-formElements-item"}
+        [:textarea
+         {:onchange (fn [db e] [[:db (update-in db id (fn [db] (assoc db :input (:value (:target e)))))]])
+          :value (-> db (:exclude) (str))
+          :className "browser-style text1"}]]]
+      [:footer {:className "panel-section panel-section-footer"}
+       [:button {:className "panel-section-footer-button"
+                 :innerText "Cancel"
+                 :onclick (fn [db]
+                            [[:set-value {:target {:type :selector :target parent-node :selector ".text1"}
+                                          :value (-> db (:exclude) (str))}]])}]
+       [:div {:className "panel-section-footer-separator"}]
+       [:button {:className "panel-section-footer-button default"
+                 :innerText "Confirm"
+                 :onclick (fn [db]
+                            (let [cfg (edn/read-string (:input (get-in db id)))]
+                              [[:db (assoc db :exclude cfg)]]))}]]]}]])

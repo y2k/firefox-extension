@@ -1,5 +1,6 @@
 (ns extension.effects
   (:require [clojure.string :as str]
+            [goog.object :as g]
             [extension.domain :as d]
             [extension.storage :as s]))
 
@@ -20,22 +21,16 @@
 (defn- add-node [target vnode]
   (.append
    target
-   (let [node (.createElement js/document (:tag vnode))]
-     (some->> (:class vnode) (set! (.-className node)))
-     (some->> (:innerText vnode) (set! (.-innerText node)))
-     (some->> (:value vnode) (set! (.-value node)))
-     (if-let [f (:onchange vnode)]
-       (set! (.-onchange node)
-             (fn [e]
-               (doseq [cmd (f (d/get-db) {:target {:type :node :value (.-value (.-target e)) :raw-node (.-target e)}})]
-                 (execute-command cmd)))))
-     (if-let [f (:onclick vnode)]
-       (set! (.-onclick node)
-             (fn [e]
-               (doseq [cmd (f (d/get-db) {:target {:type :node :raw-node (.-target e)}})]
-                 (execute-command cmd)))))
-     (doseq [child (:children vnode)]
-       (add-node node child))
+   (let [node (.createElement js/document (name (nth vnode 0)))]
+     (doseq [[k v] (nth vnode 1)]
+       (if (fn? v)
+         (g/set node (name k)
+                (fn [e]
+                  (doseq [cmd (v (d/get-db) {:target {:type :node :value (.-value (.-target e)) :raw-node (.-target e)}})]
+                    (execute-command cmd))))
+         (g/set node (name k) v)))
+     (doseq [child  (subvec vnode 2)]
+       (add-node2 node child))
      node)))
 
 (defn execute-command [cmd]
@@ -49,7 +44,7 @@
       :add-class (.add (.-classList (get-real-node (:target cmd-arg))) (:class cmd-arg))
 
       :remove-node (.remove (get-real-node cmd-arg))
-      :add-element (add-node (get-real-node (:target cmd-arg)) cmd-arg)
+      :add-node (add-node (get-real-node (:target cmd-arg)) (:node cmd-arg))
 
       :db (do
             (d/set-db cmd-arg)
