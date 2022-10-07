@@ -101,6 +101,14 @@
 
 ;; ====================== EXTENSION OPTIONS ======================
 
+(defn cancel-options [parent-node db]
+  [[:set-value {:target {:type :selector :target parent-node :selector ".text1"}
+                :value (-> db (:exclude) (str))}]])
+
+(defn save-options [id db]
+  (let [cfg (edn/read-string (:input (get-in db id)))]
+    [[:db (assoc db :exclude cfg)]]))
+
 (defn make-options [id db parent-node]
   [[:add-node
     {:target parent-node
@@ -115,12 +123,8 @@
       [:footer {:className "panel-section panel-section-footer"}
        [:button {:className "panel-section-footer-button"
                  :innerText "Cancel"
-                 :onclick (fn [db]
-                            [[:set-value {:target {:type :selector :target parent-node :selector ".text1"}
-                                          :value (-> db (:exclude) (str))}]])}]
+                 :onclick (fn [db] (cancel-options parent-node db))}]
        [:div {:className "panel-section-footer-separator"}]
        [:button {:className "panel-section-footer-button default"
                  :innerText "Confirm"
-                 :onclick (fn [db]
-                            (let [cfg (edn/read-string (:input (get-in db id)))]
-                              [[:db (assoc db :exclude cfg)]]))}]]]}]])
+                 :onclick (fn [db] (save-options id db))}]]]}]])

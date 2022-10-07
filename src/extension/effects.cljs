@@ -30,7 +30,7 @@
                     (execute-command cmd))))
          (g/set node (name k) v)))
      (doseq [child  (subvec vnode 2)]
-       (add-node2 node child))
+       (add-node node child))
      node)))
 
 (defn execute-command [cmd]
