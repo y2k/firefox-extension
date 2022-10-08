@@ -69,8 +69,10 @@
 (defn add-user-menu-end [_ entities]
   [[:add-node
     {:target (:node (nth entities 0))
-     :node [:a {:innerText "[FADE]"
-                :onclick #'fade-clicked}]}]])
+     :node [:div {}
+            [:span {:innerText "["}]
+            [:a {:innerText "Fade" :onclick #'fade-clicked}]
+            [:span {:innerText "]"}]]}]])
 
 ;; =========================================================
 
@@ -95,7 +97,7 @@
           :class "ext-marked"}]
         [:add-node
          {:target parent-node
-          :node [:div {:class "ext-hover"
+          :node [:div {:className "ext-hover"
                        :onclick (fn [_ e] (media-clicked parent-node e))}]}]]))
    entities))
 

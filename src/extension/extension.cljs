@@ -61,7 +61,8 @@
        "video.expandedWebm { grid-row: 2; grid-column: 1; }
         div.ext-hover { margin: 5px 0px 45px 0px; grid-row: 2; grid-column: 1; }
         div.post div.file { display: grid }
-        a.fileThumb img { opacity: var(--ext_content_opacity) }")
+        a.fileThumb img { opacity: var(--ext_content_opacity) }
+        #navtopright { display: flex }")
       (.append (.-head js/document) style))
 
     (s/load-prefs #'document-loaded)

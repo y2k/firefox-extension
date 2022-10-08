@@ -55,7 +55,10 @@
     (is (=
          [[:add-node
            {:target target
-            :node [:a {:innerText "[FADE]" :onclick nil}]}]]
+            :node [:div {}
+                   [:span {:innerText "["}]
+                   [:a {:innerText "Fade" :onclick nil}]
+                   [:span {:innerText "]"}]]}]]
          (remove-fn (d/add-user-menu-end {} [{:node target}]))))))
 
 (deftest test231
@@ -76,7 +79,7 @@
         actual (remove-fn (d/handle-media-changes-end {} [{:node target}]))]
     (is (=
          [[:add-class {:target target :class "ext-marked"}]
-          [:add-node {:target {:type :parent :target target} :node [:div {:class "ext-hover" :onclick nil}]}]]
+          [:add-node {:target {:type :parent :target target} :node [:div {:className "ext-hover" :onclick nil}]}]]
          actual))))
 
 (deftest test331
@@ -115,5 +118,5 @@
         input (gensym)
         input-br (str "[" input "]")]
     (is (=
-         [[:db {id {:input input-br}, :exclude [input]}]]
+         [[:db {id {:input input-br} :exclude [input]}]]
          (d/save-options [id] {id {:input input-br}})))))
